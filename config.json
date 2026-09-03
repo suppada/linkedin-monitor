@@ -1,99 +1,51 @@
 {
   "sources": [
-    {
-      "type": "linkedin_email",
-      "lookback_days": 7,
-      "location": "United States",
-      "employment_type": "Full-time"
-    }
+    {"type":"official_company","company":"NVIDIA","domain":"nvidia.wd5.myworkdayjobs.com","path_prefix":"NVIDIAExternalCareerSite"},
+    {"type":"official_company","company":"Google","domain":"google.com","path_prefix":"/about/careers/applications/jobs/"},
+    {"type":"official_company","company":"Apple","domain":"jobs.apple.com","path_prefix":"/en-us/"},
+    {"type":"official_company","company":"Tesla","domain":"tesla.com","path_prefix":"/careers/"},
+    {"type":"official_company","company":"Microsoft","domain":"jobs.careers.microsoft.com","path_prefix":"/global/en/"},
+    {"type":"official_company","company":"Amazon","domain":"amazon.jobs","path_prefix":"/en/jobs/"},
+    {"type":"official_company","company":"Meta","domain":"metacareers.com","path_prefix":"/jobs/"},
+    {"type":"official_company","company":"Netflix","domain":"jobs.netflix.com","path_prefix":"/jobs/"},
+    {"type":"official_company","company":"Salesforce","domain":"careers.salesforce.com","path_prefix":"/en/jobs/"},
+    {"type":"official_company","company":"Oracle","domain":"careers.oracle.com","path_prefix":"/jobs/"}
   ],
   "notifications": {
     "max_jobs_per_email": 30
   },
   "preferences": {
     "title_terms": [
-      "devops",
-      "platform engineer",
-      "cloud engineer",
-      "cloud architect",
-      "devsecops",
-      "site reliability",
-      "sre",
-      "infrastructure engineer",
-      "infrastructure architect",
-      "platform architect",
-      "cloud infrastructure",
-      "ci/cd",
-      "cicd",
-      "kubernetes engineer",
-      "kubernetes architect",
-      "release engineer",
-      "build engineer",
-      "production engineer",
-      "mlops"
+      "devops", "platform engineer", "cloud engineer", "cloud architect",
+      "devsecops", "site reliability", "sre", "infrastructure engineer",
+      "infrastructure architect", "platform architect", "cloud infrastructure",
+      "ci/cd", "cicd", "kubernetes engineer", "kubernetes architect",
+      "release engineer", "build engineer", "production engineer", "mlops"
     ],
     "skills": [
-      "aws",
-      "kubernetes",
-      "eks",
-      "terraform",
-      "github actions",
-      "fluxcd",
-      "helm",
-      "docker",
-      "devsecops",
-      "appdynamics",
-      "observability",
-      "slsa"
+      "aws", "kubernetes", "eks", "terraform", "github actions", "fluxcd",
+      "helm", "docker", "devsecops", "appdynamics", "observability", "slsa"
     ],
     "location_terms": [
-      "united states",
-      "usa",
-      "u.s.",
-      "us only",
-      "remote us",
-      "remote - us",
-      "new york",
-      "new jersey",
-      "california",
-      "texas",
-      "florida",
-      "virginia",
-      "maryland",
-      "washington",
-      "north carolina",
-      "south carolina",
-      "georgia",
-      "massachusetts",
-      "pennsylvania",
-      "ohio",
-      "illinois",
-      "colorado",
-      "arizona",
-      "connecticut",
-      "delaware",
-      "tennessee",
-      "minnesota",
-      "michigan",
-      "oregon"
+      "united states", "usa", "u.s.", "us only", "remote us", "remote - us",
+      "new york", "new jersey", "california", "texas", "florida", "virginia",
+      "maryland", "washington", "north carolina", "south carolina", "georgia",
+      "massachusetts", "pennsylvania", "ohio", "illinois", "colorado", "arizona",
+      "connecticut", "delaware", "tennessee", "minnesota", "michigan", "oregon"
     ],
     "require_location_match": true,
     "exclude_terms": [],
+    "exclude_title_terms": [
+      "intern", "internship", "contract", "contractor", "freelance",
+      "part-time", "part time", "customer success", "technical support"
+    ],
     "sponsorship_positive": [
-      "h-1b transfer",
-      "h1b transfer",
-      "h-1b sponsorship",
-      "h1b sponsorship",
-      "sponsor h-1b",
-      "sponsor h1b",
-      "visa sponsorship available",
-      "will sponsor",
-      "employment visa sponsorship"
+      "h-1b transfer", "h1b transfer", "h-1b sponsorship", "h1b sponsorship",
+      "sponsor h-1b", "sponsor h1b", "visa sponsorship available",
+      "will sponsor", "employment visa sponsorship"
     ],
     "sponsorship_negative": [
-      "no sponsorship",
-      "unable to sponsor",
-      "will not sponsor"
+      "no sponsorship", "unable to sponsor", "will not sponsor"
     ],
     "require_sponsorship": false,
     "require_full_time": true,

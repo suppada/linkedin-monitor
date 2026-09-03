@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import html
+import hashlib
 import json
 import re
+import xml.etree.ElementTree as ET
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 
 from .models import Job
@@ -21,6 +23,15 @@ def fetch_json(url: str) -> Any:
             return json.loads(response.read().decode("utf-8"))
     except (HTTPError, URLError, TimeoutError, ValueError) as exc:
         raise RuntimeError(f"Job source request failed: {url}: {exc}") from exc
+
+
+def fetch_text(url: str) -> str:
+    request = Request(url, headers={"Accept": "application/rss+xml", "User-Agent": "DevOpsJobAgent/1.5"})
+    try:
+        with urlopen(request, timeout=45) as response:
+            return response.read().decode("utf-8", errors="replace")
+    except (HTTPError, URLError, TimeoutError, ValueError) as exc:
+        raise RuntimeError(f"Company careers request failed: {url}: {exc}") from exc
 
 
 def clean(value: str | None) -> str:
@@ -172,6 +183,45 @@ def arbeitnow(visa_sponsorship: bool = True) -> list[Job]:
     return jobs
 
 
+def official_company(
+    company: str,
+    domain: str,
+    path_prefix: str = "",
+    query_terms: str = "devops platform engineer site reliability cloud infrastructure kubernetes",
+) -> list[Job]:
+    """Find indexed postings restricted to one official employer career domain."""
+    query = f'site:{domain}{path_prefix} ({query_terms}) "United States"'
+    feed_url = "https://www.bing.com/search?" + urlencode({"q": query, "format": "rss"})
+    try:
+        root = ET.fromstring(fetch_text(feed_url))
+    except ET.ParseError as exc:
+        raise RuntimeError(f"Invalid careers search response for {company}: {exc}") from exc
+    jobs: list[Job] = []
+    allowed = domain.casefold().removeprefix("www.")
+    for item in root.findall(".//item"):
+        title = clean(item.findtext("title"))
+        url = clean(item.findtext("link"))
+        host = (urlparse(url).hostname or "").casefold().removeprefix("www.")
+        if not url or not (host == allowed or host.endswith("." + allowed)):
+            continue
+        if path_prefix and path_prefix not in url:
+            continue
+        description = clean(item.findtext("description"))
+        external_id = hashlib.sha256(url.encode("utf-8")).hexdigest()[:24]
+        jobs.append(Job(
+            source=f"company:{company.casefold().replace(' ', '_')}",
+            external_id=external_id,
+            company=company,
+            title=title,
+            location="United States",
+            description=description,
+            url=url,
+            published_at=clean(item.findtext("pubDate")),
+            employment_type="Full-time",
+        ))
+    return jobs
+
+
 def collect(config: dict) -> tuple[list[Job], list[str]]:
     jobs: list[Job] = []
     errors: list[str] = []
@@ -194,6 +244,13 @@ def collect(config: dict) -> tuple[list[Job], list[str]]:
                 jobs.extend(arbeitnow(bool(source.get("visa_sponsorship", True))))
             elif source["type"] == "linkedin_email":
                 jobs.extend(linkedin_email(source))
+            elif source["type"] == "official_company":
+                jobs.extend(official_company(
+                    str(source["company"]),
+                    str(source["domain"]),
+                    str(source.get("path_prefix", "")),
+                    str(source.get("query_terms", "devops platform engineer site reliability cloud infrastructure kubernetes")),
+                ))
             else:
                 errors.append(f"Unsupported source type: {source.get('type')}")
         except RuntimeError as exc:

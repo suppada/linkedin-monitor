@@ -29,17 +29,22 @@ Email results to your Gmail
 Persist seen-job database
 ```
 
-The bundled configuration scans Remote OK, Remotive, Jobicy, and Arbeitnow's
-ATS-backed feed for remote, hybrid, and on-site roles. The agent also
-supports public Greenhouse and Lever company job boards. Greenhouse and Lever monitoring is the
-best way to receive postings directly from selected employers rather than from
-an aggregator.
+The bundled configuration monitors selected large-company career domains. The
+agent can also be configured for Remote OK, Remotive, Jobicy, Arbeitnow, public
+Greenhouse and Lever boards, or LinkedIn job-alert email ingestion.
 
 It also reads LinkedIn job-alert emails from the configured Gmail inbox. It does
 not scrape LinkedIn or store a LinkedIn password. Configure the LinkedIn alert
 itself for United States and Full-time before enabling email delivery; the agent
 then extracts LinkedIn job links, applies its classifier, deduplicates them, and
 combines them with the other sources.
+
+The default configuration monitors official careers domains for NVIDIA, Google,
+Apple, Tesla, Microsoft, Amazon, Meta, Netflix, Salesforce, and Oracle. Results
+are discovered through a domain-restricted RSS search and accepted only when
+the destination hostname is the configured employer domain. Every alert links
+to the employer's careers site. Search-engine indexing can introduce delay, so
+this is polling rather than a real-time employer webhook.
 
 ## 1. Create your GitHub repository
 
@@ -99,8 +104,8 @@ the email labels sponsorship as confirmed, unavailable, or not confirmed. The
 agent does not infer sponsorship from a company's historical behavior.
 
 `require_location_match` restricts alerts to explicit United States locations.
-The configured Jobicy request uses its `geo=usa` filter, so those results are
-treated as US-eligible. Other sources must state a configured US location.
+Company-site searches are scoped to the United States. A Jobicy source configured
+with `geo=usa` is also treated as US-eligible.
 
 ## 5. Add employer career boards
 

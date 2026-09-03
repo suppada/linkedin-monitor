@@ -8,7 +8,7 @@ from unittest.mock import patch
 from job_agent.intelligence import JobRelevanceAI
 from job_agent.linkedin_email import canonical_job_url, extract_jobs
 from job_agent.models import Job
-from job_agent.sources import arbeitnow, jobicy, remotive
+from job_agent.sources import arbeitnow, jobicy, official_company, remotive
 from job_agent.state import State
 
 
@@ -110,6 +110,21 @@ class JobAgentTests(unittest.TestCase):
         jobs = arbeitnow()
         self.assertEqual(jobs[0].location, "New York")
         self.assertEqual(jobs[0].employment_type, "full-time")
+
+    @patch("job_agent.sources.fetch_text")
+    def test_reads_only_official_company_links(self, fetch_text):
+        fetch_text.return_value = '''<?xml version="1.0"?>
+        <rss><channel>
+          <item><title>Senior DevOps Engineer</title>
+            <link>https://jobs.example.com/en-us/job/123</link>
+            <description>AWS Kubernetes Terraform</description></item>
+          <item><title>Wrong domain</title>
+            <link>https://aggregator.example/job/123</link></item>
+        </channel></rss>'''
+        jobs = official_company("Example", "jobs.example.com", "/en-us/")
+        self.assertEqual(len(jobs), 1)
+        self.assertEqual(jobs[0].company, "Example")
+        self.assertEqual(jobs[0].employment_type, "Full-time")
 
 
 if __name__ == "__main__":

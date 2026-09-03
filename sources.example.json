@@ -4,6 +4,8 @@
     {"type":"remotive"},
     {"type":"jobicy", "geo":"usa", "count":200},
     {"type":"arbeitnow", "visa_sponsorship":true},
+    {"type":"official_company", "company":"NVIDIA", "domain":"nvidia.wd5.myworkdayjobs.com", "path_prefix":"NVIDIAExternalCareerSite"},
+    {"type":"official_company", "company":"Apple", "domain":"jobs.apple.com", "path_prefix":"/en-us/"},
     {"type":"greenhouse", "company":"Company Name", "board":"board-token"},
     {"type":"lever", "company":"Company Name", "account":"account-name"}
   ]

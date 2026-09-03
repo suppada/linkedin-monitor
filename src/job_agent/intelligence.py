@@ -51,6 +51,8 @@ class JobRelevanceAI:
         text = f"{job.title} {job.location} {job.employment_type} {job.description}".casefold()
         if any(term.casefold() in text for term in preferences.get("exclude_terms", [])):
             return None
+        if any(term.casefold() in job.title.casefold() for term in preferences.get("exclude_title_terms", [])):
+            return None
         title_ok = any(term.casefold() in job.title.casefold() for term in preferences["title_terms"])
         location_text = job.location.casefold()
         state_code = re.search(
