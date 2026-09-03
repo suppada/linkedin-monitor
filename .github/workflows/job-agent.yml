@@ -26,9 +26,9 @@ jobs:
       - name: Restore seen-job database
         uses: actions/cache/restore@v5
         with:
-          path: data/email-display-test.db
-          key: email-display-test-state-${{ github.run_id }}
-          restore-keys: email-display-test-state-
+          path: data/resume-match-test.db
+          key: resume-match-test-state-${{ github.run_id }}
+          restore-keys: resume-match-test-state-
 
       - name: Install agent
         run: python -m pip install .
@@ -38,12 +38,12 @@ jobs:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           GMAIL_TO: ${{ secrets.GMAIL_TO }}
-        run: job-agent --config config.json --state data/email-display-test.db
+        run: job-agent --config config.json --state data/resume-match-test.db
 
       - name: Save seen-job database
         if: always()
         uses: actions/cache/save@v5
         with:
-          path: data/email-display-test.db
-          key: email-display-test-state-${{ github.run_id }}
+          path: data/resume-match-test.db
+          key: resume-match-test-state-${{ github.run_id }}
 
