@@ -6,8 +6,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 from job_agent.intelligence import JobRelevanceAI
+from job_agent.emailer import build_email_html
 from job_agent.linkedin_email import canonical_job_url, extract_jobs
-from job_agent.models import Job
+from job_agent.models import Job, Match
 from job_agent.sources import arbeitnow, jobicy, official_company, remotive
 from job_agent.state import State
 
@@ -50,6 +51,18 @@ class JobAgentTests(unittest.TestCase):
             self.assertFalse(state.is_seen("job:1"))
             state.mark_seen(["job:1"])
             self.assertTrue(state.is_seen("job:1"))
+
+    def test_builds_mobile_friendly_email_card(self):
+        job = Job("test", "10", "Example", "Senior DevOps Engineer", "Charlotte, NC",
+                  "AWS Kubernetes", "https://example/jobs/10", employment_type="Full-time")
+        match = Match(job, 82.4, 0.95, "not_confirmed",
+                      ("AI relevance 95%", "Sponsorship: not_confirmed", "AWS skill match"))
+        body = build_email_html([match])
+        self.assertIn("1 new job match", body)
+        self.assertIn("View &amp; Apply", body)
+        self.assertIn("82%", body)
+        self.assertEqual(body.count("Sponsorship:"), 1)
+        self.assertIn("AWS skill match", body)
 
     def test_extracts_linkedin_job_alert(self):
         content = '''
