@@ -2,7 +2,8 @@ name: DevOps Job AI Agent
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "0 10 * * *"
+      timezone: "America/New_York"
   workflow_dispatch:
 
 permissions:
