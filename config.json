@@ -1,19 +1,10 @@
 {
   "sources": [
     {
-      "type": "remoteok"
-    },
-    {
-      "type": "remotive"
-    },
-    {
-      "type": "jobicy",
-      "geo": "usa",
-      "count": 200
-    },
-    {
-      "type": "arbeitnow",
-      "visa_sponsorship": true
+      "type": "linkedin_email",
+      "lookback_days": 7,
+      "location": "United States",
+      "employment_type": "Full-time"
     }
   ],
   "notifications": {
@@ -73,7 +64,8 @@
       "will not sponsor"
     ],
     "require_sponsorship": false,
-    "require_full_time": false,
-    "minimum_ai_probability": 0.0
+    "require_full_time": true,
+    "minimum_ai_probability": 0.35,
+    "require_location_match": true
   }
 }
