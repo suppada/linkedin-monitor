@@ -1,36 +1,79 @@
 {
   "sources": [
-    {"type": "remoteok"},
-    {"type": "remotive"},
-    {"type": "jobicy", "geo": "usa", "count": 200},
-    {"type": "arbeitnow", "visa_sponsorship": true}
+    {
+      "type": "remoteok"
+    },
+    {
+      "type": "remotive"
+    },
+    {
+      "type": "jobicy",
+      "geo": "usa",
+      "count": 200
+    },
+    {
+      "type": "arbeitnow",
+      "visa_sponsorship": true
+    }
   ],
   "notifications": {
     "max_jobs_per_email": 30
   },
   "preferences": {
     "title_terms": [
-      "devops", "platform engineer", "cloud engineer", "cloud architect",
-      "devsecops", "site reliability", "sre", "infrastructure engineer",
-      "infrastructure architect", "platform architect", "cloud infrastructure",
-      "ci/cd", "cicd", "kubernetes engineer", "kubernetes architect",
-      "release engineer", "build engineer", "production engineer", "mlops"
+      "devops",
+      "platform engineer",
+      "cloud engineer",
+      "cloud architect",
+      "devsecops",
+      "site reliability",
+      "sre",
+      "infrastructure engineer",
+      "infrastructure architect",
+      "platform architect",
+      "cloud infrastructure",
+      "ci/cd",
+      "cicd",
+      "kubernetes engineer",
+      "kubernetes architect",
+      "release engineer",
+      "build engineer",
+      "production engineer",
+      "mlops"
     ],
     "skills": [
-      "aws", "kubernetes", "eks", "terraform", "github actions", "fluxcd",
-      "helm", "docker", "devsecops", "appdynamics", "observability", "slsa"
+      "aws",
+      "kubernetes",
+      "eks",
+      "terraform",
+      "github actions",
+      "fluxcd",
+      "helm",
+      "docker",
+      "devsecops",
+      "appdynamics",
+      "observability",
+      "slsa"
     ],
     "exclude_terms": [],
     "sponsorship_positive": [
-      "h-1b transfer", "h1b transfer", "h-1b sponsorship", "h1b sponsorship",
-      "sponsor h-1b", "sponsor h1b", "visa sponsorship available",
-      "will sponsor", "employment visa sponsorship"
+      "h-1b transfer",
+      "h1b transfer",
+      "h-1b sponsorship",
+      "h1b sponsorship",
+      "sponsor h-1b",
+      "sponsor h1b",
+      "visa sponsorship available",
+      "will sponsor",
+      "employment visa sponsorship"
     ],
     "sponsorship_negative": [
-      "no sponsorship", "unable to sponsor", "will not sponsor"
+      "no sponsorship",
+      "unable to sponsor",
+      "will not sponsor"
     ],
     "require_sponsorship": false,
-    "require_full_time": true,
-    "minimum_ai_probability": 0.35
+    "require_full_time": false,
+    "minimum_ai_probability": 0.0
   }
 }
