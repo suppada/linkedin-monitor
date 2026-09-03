@@ -52,6 +52,20 @@ class JobRelevanceAI:
         if any(term.casefold() in text for term in preferences.get("exclude_terms", [])):
             return None
         title_ok = any(term.casefold() in job.title.casefold() for term in preferences["title_terms"])
+        location_text = job.location.casefold()
+        state_code = re.search(
+            r"(?:^|[, /])(?:al|ak|az|ar|ca|co|ct|de|fl|ga|hi|id|il|in|ia|ks|ky|la|"
+            r"me|md|ma|mi|mn|ms|mo|mt|ne|nv|nh|nj|nm|ny|nc|nd|oh|ok|or|pa|ri|"
+            r"sc|sd|tn|tx|ut|vt|va|wa|wv|wi|wy|dc)(?:$|[, /])",
+            location_text,
+        )
+        location_ok = (
+            job.source == "jobicy"
+            or bool(state_code)
+            or any(term.casefold() in location_text for term in preferences.get("location_terms", []))
+        )
+        if preferences.get("require_location_match", False) and not location_ok:
+            return None
         skills = [term for term in preferences.get("skills", []) if term.casefold() in text]
         ai_probability = self.probability(text[:50_000])
         sponsorship_positive = any(term in text for term in preferences.get("sponsorship_positive", []))
@@ -64,7 +78,7 @@ class JobRelevanceAI:
             sponsorship = "not_confirmed"
         if preferences.get("require_sponsorship", False) and sponsorship != "confirmed":
             return None
-        full_time_terms = ("full-time", "full time", "fulltime", "permanent")
+        full_time_terms = ("full-time", "full time", "fulltime", "full_time", "permanent")
         full_time = any(term in text for term in full_time_terms)
         if preferences.get("require_full_time", False) and not full_time:
             return None
