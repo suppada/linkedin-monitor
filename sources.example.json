@@ -1,0 +1,7 @@
+{
+  "sources": [
+    {"type":"remoteok"},
+    {"type":"greenhouse", "company":"Company Name", "board":"board-token"},
+    {"type":"lever", "company":"Company Name", "account":"account-name"}
+  ]
+}

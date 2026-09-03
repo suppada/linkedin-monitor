@@ -1,0 +1,32 @@
+{
+  "sources": [
+    {
+      "type": "remoteok"
+    }
+  ],
+  "preferences": {
+    "title_terms": [
+      "devops", "platform engineer", "cloud engineer", "cloud architect",
+      "devsecops", "site reliability", "sre", "infrastructure engineer",
+      "ci/cd", "kubernetes engineer"
+    ],
+    "skills": [
+      "aws", "kubernetes", "eks", "terraform", "github actions", "fluxcd",
+      "helm", "docker", "devsecops", "appdynamics", "observability", "slsa"
+    ],
+    "exclude_terms": [
+      "polygraph", "u.s. citizenship required", "us citizenship required",
+      "must be a u.s. citizen", "must be a us citizen", "no sponsorship",
+      "unable to sponsor", "security clearance required"
+    ],
+    "sponsorship_positive": [
+      "h-1b transfer", "h1b transfer", "visa sponsorship available",
+      "will sponsor", "employment visa sponsorship"
+    ],
+    "sponsorship_negative": [
+      "no sponsorship", "unable to sponsor", "will not sponsor"
+    ],
+    "require_sponsorship": false,
+    "minimum_ai_probability": 0.55
+  }
+}

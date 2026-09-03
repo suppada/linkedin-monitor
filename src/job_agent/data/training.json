@@ -1,0 +1,18 @@
+[
+  {"label":"match","text":"Senior DevOps Engineer AWS Kubernetes Terraform GitHub Actions CI CD platform automation"},
+  {"label":"match","text":"Lead Platform Engineer EKS Helm FluxCD infrastructure as code observability"},
+  {"label":"match","text":"Principal Cloud Engineer AWS containers Kubernetes security architecture remote"},
+  {"label":"match","text":"Staff Site Reliability Engineer SRE cloud platform reliability deployment automation"},
+  {"label":"match","text":"DevSecOps Architect secure software supply chain SLSA OPA policy as code"},
+  {"label":"match","text":"CI CD Platform Engineer GitHub Actions reusable workflows runners Docker Helm"},
+  {"label":"match","text":"Infrastructure Engineer Terraform AWS EKS Kubernetes monitoring AppDynamics"},
+  {"label":"match","text":"Cloud Platform Architect Kubernetes GitOps Flux observability security"},
+  {"label":"not_match","text":"Frontend React JavaScript UI UX web designer entry level"},
+  {"label":"not_match","text":"Data scientist natural language processing statistics machine learning research"},
+  {"label":"not_match","text":"Sales account executive customer success marketing manager"},
+  {"label":"not_match","text":"Help desk desktop support technician Windows hardware"},
+  {"label":"not_match","text":"Java application developer Spring Boot microservices programmer"},
+  {"label":"not_match","text":"Mobile iOS Swift Android application engineer"},
+  {"label":"not_match","text":"Business analyst product owner scrum master finance"},
+  {"label":"not_match","text":"Junior internship graduate trainee software developer"}
+]

@@ -1,0 +1,181 @@
+# DevOps Job AI Agent
+
+This is Suresh Kumar Uppada's independent job-monitoring agent. It runs from a
+GitHub repository every hour, checks configured public job sources, uses its own
+machine-learning classifier to identify DevOps/platform/cloud opportunities,
+remembers jobs already processed, and emails only new matches directly to Gmail.
+
+It does not use ChatGPT, an LLM, or an external AI service. The relevance model
+is a multinomial Naive Bayes classifier implemented directly in Python and
+trained from the bundled labeled dataset.
+
+## What it does
+
+```text
+Hourly GitHub Actions schedule
+          ↓
+Read current job postings
+          ↓
+Ignore previously processed job IDs
+          ↓
+Apply exclusions and sponsorship policy
+          ↓
+Run AI relevance classification
+          ↓
+Rank new matching DevOps jobs
+          ↓
+Email results to your Gmail
+          ↓
+Persist seen-job database
+```
+
+The bundled configuration works with Remote OK. The agent also supports public
+Greenhouse and Lever company job boards. Greenhouse and Lever monitoring is the
+best way to receive postings directly from selected employers rather than from
+an aggregator.
+
+## 1. Create your GitHub repository
+
+Create a private repository such as:
+
+```text
+devops-job-ai-agent
+```
+
+Extract this project, push its contents to the repository's default branch, and
+keep `.github/workflows/job-agent.yml` enabled.
+
+## 2. Create a Gmail app password
+
+Do not use your normal Gmail password.
+
+1. Enable 2-Step Verification on your Google account.
+2. Open Google Account **App passwords**.
+3. Create an app password named `DevOps Job Agent`.
+4. Copy the generated 16-character password.
+
+App passwords may be unavailable for some managed Workspace accounts or when an
+administrator disables them.
+
+## 3. Configure GitHub Actions secrets
+
+In the repository, open **Settings → Secrets and variables → Actions** and add:
+
+| Secret | Value |
+|---|---|
+| `GMAIL_ADDRESS` | Gmail address used to send the alert |
+| `GMAIL_APP_PASSWORD` | Google-generated app password, never normal password |
+| `GMAIL_TO` | Gmail address that should receive alerts |
+
+Never put these values in `config.json` or commit them.
+
+## 4. Configure job preferences
+
+Edit `config.json`. It already targets:
+
+- DevOps
+- Platform Engineering
+- Cloud Engineering and Architecture
+- DevSecOps
+- Site Reliability Engineering
+- Infrastructure Engineering
+- CI/CD and Kubernetes roles
+
+It recognizes experience with AWS, Kubernetes/EKS, Terraform, GitHub Actions,
+FluxCD, Helm, Docker, AppDynamics, observability and SLSA. It excludes polygraph,
+citizenship-only, clearance-required and explicitly no-sponsorship postings.
+
+`require_sponsorship` defaults to `false` because most public postings do not
+say whether an H-1B transfer is supported. Every email labels sponsorship as
+`confirmed` or `not_confirmed`. Set it to `true` if you want alerts only when the
+description explicitly includes positive sponsorship language.
+
+## 5. Add employer career boards
+
+The Greenhouse Job Board API uses the token visible in a company's career URL:
+
+```text
+https://boards.greenhouse.io/BOARD_TOKEN
+```
+
+Add to `config.json`:
+
+```json
+{
+  "type": "greenhouse",
+  "company": "Company Name",
+  "board": "BOARD_TOKEN"
+}
+```
+
+For Lever, use the account name from:
+
+```text
+https://jobs.lever.co/ACCOUNT_NAME
+```
+
+Add:
+
+```json
+{
+  "type": "lever",
+  "company": "Company Name",
+  "account": "ACCOUNT_NAME"
+}
+```
+
+See `sources.example.json`.
+
+## 6. Test it
+
+Open **Actions → DevOps Job AI Agent → Run workflow**.
+
+For a local scan without sending email:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --no-build-isolation -e .
+job-agent --config config.json --state data/job-agent.db --dry-run
+```
+
+Run unit tests without dependencies:
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -v
+```
+
+## Schedule
+
+The included workflow runs at minute 17 of every hour:
+
+```yaml
+schedule:
+  - cron: "17 * * * *"
+```
+
+GitHub scheduled workflows are polling, not truly instantaneous, and may start
+later during high system load. Public job boards do not provide one universal
+webhook for every employer. Therefore the agent detects a posting during its
+next scheduled scan.
+
+## Seen-job state
+
+The SQLite database stores stable source/company/job identifiers. GitHub Actions
+cache restores the latest database before scanning and saves the updated state
+afterward. A matching job is emailed once, not during every hourly run.
+
+The first run treats all currently active matching postings as new. Subsequent
+runs email only newly discovered matches.
+
+## AI limitations and improvement
+
+The included labeled dataset bootstraps the model. It does not prove production
+accuracy. Improve it with accurately labeled examples and measure precision,
+recall and F1 score on a separate evaluation set. Do not train on confidential
+job-search or personal information that you plan to publish.
+
+## Ownership
+
+Copyright 2026 Suresh Kumar Uppada. Apache License 2.0.
+
