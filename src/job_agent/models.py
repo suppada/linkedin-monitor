@@ -28,3 +28,7 @@ class Match:
     ai_probability: float
     sponsorship: str
     reasons: tuple[str, ...]
+    resume_score: int = 0
+    resume_level: str = ""
+    matched_skills: tuple[str, ...] = ()
+    missing_skills: tuple[str, ...] = ()

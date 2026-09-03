@@ -1,0 +1,55 @@
+{
+  "profile_name": "Suresh Kumar Uppada - SRE and Cloud Platform",
+  "years_experience": 10,
+  "target_titles": [
+    "senior site reliability engineer",
+    "lead site reliability engineer",
+    "senior devops engineer",
+    "lead devops engineer",
+    "principal devops engineer",
+    "senior platform engineer",
+    "staff platform engineer",
+    "principal platform engineer",
+    "cloud infrastructure engineer",
+    "ci/cd platform engineer",
+    "devops architect",
+    "cloud platform architect",
+    "cloud security engineer",
+    "devsecops engineer",
+    "cloud systems research engineer",
+    "cloud security research engineer",
+    "devsecops research engineer",
+    "secure systems research engineer",
+    "software supply chain security researcher"
+  ],
+  "skills": [
+    "aws", "eks", "ec2", "vpc", "iam", "route 53", "s3", "rds", "lambda",
+    "kubernetes", "aks", "helm", "fluxcd", "gitops", "docker", "terraform",
+    "cloudformation", "github actions", "gitlab ci", "azure devops", "jenkins",
+    "python", "bash", "powershell", "ansible", "linux", "nexus", "artifactory",
+    "ghcr", "ecr", "maven", "msbuild", "sonarqube", "codeql", "prisma cloud",
+    "postgresql", "appdynamics", "prometheus", "grafana",
+    "splunk", "cloudwatch", "incident response", "root cause analysis", "sre",
+    "devsecops", "ci/cd", "platform engineering", "cloud security"
+  ],
+  "education": [
+    "ph.d. information technology",
+    "master of science information technology",
+    "bachelor of technology electrical and electronics engineering"
+  ],
+  "certifications": [
+    "aws certified solutions architect professional",
+    "certified kubernetes administrator",
+    "microsoft certified azure administrator associate"
+  ],
+  "research_areas": [
+    "cloud security",
+    "cloud-native security",
+    "homomorphic encryption",
+    "confidential computing",
+    "policy as code",
+    "software supply chain security",
+    "secure ci/cd",
+    "kubernetes security"
+  ]
+}

@@ -9,11 +9,13 @@ from job_agent.intelligence import JobRelevanceAI
 from job_agent.emailer import build_email_html
 from job_agent.linkedin_email import canonical_job_url, extract_jobs
 from job_agent.models import Job, Match
+from job_agent.resume_matcher import ResumeMatcher
 from job_agent.sources import arbeitnow, jobicy, official_company, remotive
 from job_agent.state import State
 
 
 TRAINING = Path(__file__).parents[1] / "src" / "job_agent" / "data" / "training.json"
+PROFILE = Path(__file__).parents[1] / "resume_profile.json"
 
 
 class JobAgentTests(unittest.TestCase):
@@ -63,6 +65,25 @@ class JobAgentTests(unittest.TestCase):
         self.assertIn("82%", body)
         self.assertEqual(body.count("Sponsorship:"), 1)
         self.assertIn("AWS skill match", body)
+
+    def test_resume_matcher_rewards_sre_cloud_alignment(self):
+        matcher = ResumeMatcher(PROFILE)
+        job = Job("test", "11", "Example", "Senior Site Reliability Engineer", "United States",
+                  "AWS EKS Kubernetes Terraform Helm GitHub Actions Python incident response",
+                  "https://example/jobs/11", employment_type="Full-time")
+        result = matcher.evaluate(job)
+        self.assertGreaterEqual(result.score, 80)
+        self.assertEqual(result.level, "STRONG MATCH")
+        self.assertIn("kubernetes", result.matched_skills)
+
+    def test_resume_matcher_exposes_ml_research_gap(self):
+        matcher = ResumeMatcher(PROFILE)
+        job = Job("test", "12", "Example", "Research Scientist, ML Systems", "United States",
+                  "Develop machine learning algorithms using PyTorch TensorFlow CUDA and LLM training",
+                  "https://example/jobs/12", employment_type="Full-time")
+        result = matcher.evaluate(job)
+        self.assertLess(result.score, 65)
+        self.assertIn("pytorch", result.missing_skills)
 
     def test_extracts_linkedin_job_alert(self):
         content = '''

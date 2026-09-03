@@ -4,7 +4,6 @@ import html
 import smtplib
 import ssl
 from email.message import EmailMessage
-from email.utils import formataddr
 
 from .models import Match
 
@@ -27,6 +26,17 @@ def build_email_html(matches: list[Match]) -> str:
         details = "".join(
             f"<li style='margin:4px 0'>{html.escape(reason)}</li>" for reason in reasons[:4]
         )
+        resume_section = ""
+        if match.resume_level:
+            resume_color = "#16803c" if match.resume_score >= 80 else "#b45309" if match.resume_score >= 65 else "#475569"
+            matched_text = ", ".join(html.escape(skill) for skill in match.matched_skills) or "General role alignment"
+            missing_text = ", ".join(html.escape(skill) for skill in match.missing_skills)
+            resume_section = f"""
+          <div style="background:#f8fafc;border-radius:10px;padding:13px;margin-top:15px;font-size:13px;color:#334155">
+            <strong style="color:{resume_color}">Resume match: {match.resume_score}% - {html.escape(match.resume_level)}</strong><br>
+            <span style="line-height:1.7"><strong>Matched:</strong> {matched_text}</span>
+            {f'<br><span style="line-height:1.7"><strong>Potential gaps:</strong> {missing_text}</span>' if missing_text else ''}
+          </div>"""
         cards.append(f"""
         <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;
                     margin:0 0 18px;padding:20px;box-shadow:0 2px 6px rgba(15,23,42,.06)">
@@ -46,6 +56,7 @@ def build_email_html(matches: list[Match]) -> str:
           <div style="height:7px;background:#e2e8f0;border-radius:10px;overflow:hidden">
             <div style="height:7px;width:{score}%;background:{score_color}"></div>
           </div>
+          {resume_section}
           {f'<ul style="color:#475569;font-size:13px;padding-left:20px;margin:14px 0">{details}</ul>' if details else ''}
           <a href="{html.escape(job.url, quote=True)}"
              style="display:inline-block;margin-top:10px;background:#2563eb;color:#ffffff;
@@ -75,7 +86,7 @@ def send_gmail(sender: str, app_password: str, recipient: str, matches: list[Mat
     message = EmailMessage()
     count = len(matches)
     message["Subject"] = f"New DevOps job alert: {count} {'match' if count == 1 else 'matches'}"
-    message["From"] = formataddr(("New Job Alerts", sender))
+    message["From"] = sender
     message["To"] = recipient
     message.set_content("New matching DevOps jobs were found. View this email in HTML format.")
     message.add_alternative(build_email_html(matches), subtype="html")

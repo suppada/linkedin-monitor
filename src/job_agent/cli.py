@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .emailer import send_gmail
 from .intelligence import JobRelevanceAI
+from .resume_matcher import ResumeMatcher
 from .sources import collect
 from .state import State
 
@@ -21,6 +22,8 @@ def main(argv: list[str] | None = None) -> int:
     config = json.loads(Path(args.config).read_text(encoding="utf-8"))
     training = Path(__file__).parent / "data" / "training.json"
     model = JobRelevanceAI(training)
+    profile_path = config.get("resume_profile")
+    resume_matcher = ResumeMatcher(profile_path) if profile_path else None
     jobs, errors = collect(config)
     source_counts = Counter(job.source for job in jobs)
     state_path = Path(args.state)
@@ -42,6 +45,12 @@ def main(argv: list[str] | None = None) -> int:
         posting_keys.add(posting_key)
         match = model.evaluate(job, config["preferences"])
         if match:
+            if resume_matcher:
+                resume = resume_matcher.evaluate(job)
+                match = type(match)(
+                    match.job, match.score, match.ai_probability, match.sponsorship, match.reasons,
+                    resume.score, resume.level, resume.matched_skills, resume.missing_skills,
+                )
             matches.append(match)
         else:
             rejected += 1
