@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from .models import Job
+from .linkedin_email import from_environment as linkedin_email
 
 TAG = re.compile(r"<[^>]+>")
 
@@ -24,6 +25,12 @@ def fetch_json(url: str) -> Any:
 
 def clean(value: str | None) -> str:
     return " ".join(html.unescape(TAG.sub(" ", value or "")).split())
+
+
+def join_values(value: Any) -> str:
+    if isinstance(value, list):
+        return " ".join(str(item) for item in value)
+    return str(value or "")
 
 
 def greenhouse(board: str, company: str) -> list[Job]:
@@ -139,7 +146,7 @@ def jobicy(count: int = 200, geo: str = "usa") -> list[Job]:
             url=item.get("url", ""),
             published_at=str(item.get("pubDate", "")),
             salary=" ".join(part for part in salary_parts if part),
-            employment_type=clean(" ".join(item.get("jobType") or [])),
+            employment_type=clean(join_values(item.get("jobType"))),
         ))
     return jobs
 
@@ -185,6 +192,8 @@ def collect(config: dict) -> tuple[list[Job], list[str]]:
                 ))
             elif source["type"] == "arbeitnow":
                 jobs.extend(arbeitnow(bool(source.get("visa_sponsorship", True))))
+            elif source["type"] == "linkedin_email":
+                jobs.extend(linkedin_email(source))
             else:
                 errors.append(f"Unsupported source type: {source.get('type')}")
         except RuntimeError as exc:

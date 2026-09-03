@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from job_agent.intelligence import JobRelevanceAI
+from job_agent.linkedin_email import canonical_job_url, extract_jobs
 from job_agent.models import Job
 from job_agent.sources import arbeitnow, jobicy, remotive
 from job_agent.state import State
@@ -40,7 +41,8 @@ class JobAgentTests(unittest.TestCase):
                   "AWS Kubernetes Terraform. No sponsorship available.",
                   "https://example/jobs/3", employment_type="Full-time")
         match = self.ai.evaluate(job, self.preferences)
-        self.assertIsNone(match)
+        self.assertIsNotNone(match)
+        self.assertEqual(match.sponsorship, "unavailable")
 
     def test_state_deduplicates(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -48,6 +50,25 @@ class JobAgentTests(unittest.TestCase):
             self.assertFalse(state.is_seen("job:1"))
             state.mark_seen(["job:1"])
             self.assertTrue(state.is_seen("job:1"))
+
+    def test_extracts_linkedin_job_alert(self):
+        content = '''
+        <html><body>
+          <a href="https://www.linkedin.com/comm/jobs/view/senior-devops-engineer-4455791144">
+            Senior DevOps Engineer
+          </a>
+        </body></html>
+        '''
+        jobs = extract_jobs(content, "message-1")
+        self.assertEqual(jobs[0].external_id, "4455791144")
+        self.assertEqual(jobs[0].title, "Senior DevOps Engineer")
+        self.assertEqual(jobs[0].employment_type, "Full-time")
+
+    def test_decodes_linkedin_redirect_url(self):
+        result = canonical_job_url(
+            "https://www.linkedin.com/redir/redirect?url=https%3A%2F%2Fwww.linkedin.com%2Fjobs%2Fview%2F4455791144"
+        )
+        self.assertEqual(result[0], "4455791144")
 
     @patch("job_agent.sources.fetch_json")
     def test_reads_remotive_feed(self, fetch_json):
@@ -65,11 +86,19 @@ class JobAgentTests(unittest.TestCase):
         fetch_json.return_value = {"jobs": [{
             "id": 8, "companyName": "Example", "jobTitle": "Platform Engineer",
             "jobGeo": "USA", "jobDescription": "Kubernetes Helm",
-            "jobIndustry": ["Engineering"], "url": "https://example/8"
+            "jobIndustry": ["Engineering"], "jobType": "Full-time",
+            "url": "https://example/8"
         }]}
         jobs = jobicy()
         self.assertEqual(jobs[0].title, "Platform Engineer")
         self.assertIn("Engineering", jobs[0].description)
+        self.assertEqual(jobs[0].employment_type, "Full-time")
+
+    def test_rejects_non_us_job(self):
+        job = Job("test", "9", "Example", "Senior DevOps Engineer", "Munich, Germany",
+                  "AWS Kubernetes Terraform", "https://example/jobs/9",
+                  employment_type="Full-time")
+        self.assertIsNone(self.ai.evaluate(job, self.preferences))
 
     @patch("job_agent.sources.fetch_json")
     def test_reads_arbeitnow_sponsored_feed(self, fetch_json):

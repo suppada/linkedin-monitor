@@ -35,6 +35,12 @@ supports public Greenhouse and Lever company job boards. Greenhouse and Lever mo
 best way to receive postings directly from selected employers rather than from
 an aggregator.
 
+It also reads LinkedIn job-alert emails from the configured Gmail inbox. It does
+not scrape LinkedIn or store a LinkedIn password. Configure the LinkedIn alert
+itself for United States and Full-time before enabling email delivery; the agent
+then extracts LinkedIn job links, applies its classifier, deduplicates them, and
+combines them with the other sources.
+
 ## 1. Create your GitHub repository
 
 Create a private repository such as:
@@ -87,10 +93,14 @@ FluxCD, Helm, Docker, AppDynamics, observability and SLSA. By default it reports
 all DevOps-related roles and flags citizenship, clearance, polygraph, and
 no-sponsorship language as eligibility warnings rather than hiding the posting.
 
-`require_sponsorship` and `require_full_time` default to `true`. Therefore, an
-alert is sent only when a DevOps-related posting explicitly indicates full-time
-employment and H-1B or employment-visa sponsorship. The agent does not infer
-sponsorship from a company's historical behavior.
+`require_full_time` defaults to `true`, while `require_sponsorship` defaults to
+`false`. An alert therefore requires a full-time DevOps-related posting, and
+the email labels sponsorship as confirmed, unavailable, or not confirmed. The
+agent does not infer sponsorship from a company's historical behavior.
+
+`require_location_match` restricts alerts to explicit United States locations.
+The configured Jobicy request uses its `geo=usa` filter, so those results are
+treated as US-eligible. Other sources must state a configured US location.
 
 ## 5. Add employer career boards
 
