@@ -29,8 +29,9 @@ Email results to your Gmail
 Persist seen-job database
 ```
 
-The bundled configuration works with Remote OK. The agent also supports public
-Greenhouse and Lever company job boards. Greenhouse and Lever monitoring is the
+The bundled configuration scans Remote OK, Remotive, Jobicy, and Arbeitnow's
+ATS-backed feed for remote, hybrid, and on-site roles. The agent also
+supports public Greenhouse and Lever company job boards. Greenhouse and Lever monitoring is the
 best way to receive postings directly from selected employers rather than from
 an aggregator.
 
@@ -82,13 +83,14 @@ Edit `config.json`. It already targets:
 - CI/CD and Kubernetes roles
 
 It recognizes experience with AWS, Kubernetes/EKS, Terraform, GitHub Actions,
-FluxCD, Helm, Docker, AppDynamics, observability and SLSA. It excludes polygraph,
-citizenship-only, clearance-required and explicitly no-sponsorship postings.
+FluxCD, Helm, Docker, AppDynamics, observability and SLSA. By default it reports
+all DevOps-related roles and flags citizenship, clearance, polygraph, and
+no-sponsorship language as eligibility warnings rather than hiding the posting.
 
-`require_sponsorship` defaults to `false` because most public postings do not
-say whether an H-1B transfer is supported. Every email labels sponsorship as
-`confirmed` or `not_confirmed`. Set it to `true` if you want alerts only when the
-description explicitly includes positive sponsorship language.
+`require_sponsorship` and `require_full_time` default to `true`. Therefore, an
+alert is sent only when a DevOps-related posting explicitly indicates full-time
+employment and H-1B or employment-visa sponsorship. The agent does not infer
+sponsorship from a company's historical behavior.
 
 ## 5. Add employer career boards
 
@@ -168,6 +170,11 @@ afterward. A matching job is emailed once, not during every hourly run.
 The first run treats all currently active matching postings as new. Subsequent
 runs email only newly discovered matches.
 
+The run summary includes counts for every source, unseen postings, preference
+rejections, cross-source duplicates, matches, and source errors. A zero-match
+run therefore explains whether there were no new postings or the preferences
+rejected them.
+
 ## AI limitations and improvement
 
 The included labeled dataset bootstraps the model. It does not prove production
@@ -178,4 +185,3 @@ job-search or personal information that you plan to publish.
 ## Ownership
 
 Copyright 2026 Suresh Kumar Uppada. Apache License 2.0.
-

@@ -14,6 +14,7 @@ class Job:
     url: str
     published_at: str = ""
     salary: str = ""
+    employment_type: str = ""
 
     @property
     def identity(self) -> str:
@@ -27,4 +28,3 @@ class Match:
     ai_probability: float
     sponsorship: str
     reasons: tuple[str, ...]
-

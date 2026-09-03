@@ -1,6 +1,9 @@
 {
   "sources": [
     {"type":"remoteok"},
+    {"type":"remotive"},
+    {"type":"jobicy", "geo":"usa", "count":200},
+    {"type":"arbeitnow", "visa_sponsorship":true},
     {"type":"greenhouse", "company":"Company Name", "board":"board-token"},
     {"type":"lever", "company":"Company Name", "account":"account-name"}
   ]

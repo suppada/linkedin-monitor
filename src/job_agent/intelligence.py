@@ -48,7 +48,7 @@ class JobRelevanceAI:
         return probabilities.get("match", 0) / normalizer
 
     def evaluate(self, job: Job, preferences: dict) -> Match | None:
-        text = f"{job.title} {job.location} {job.description}".casefold()
+        text = f"{job.title} {job.location} {job.employment_type} {job.description}".casefold()
         if any(term.casefold() in text for term in preferences.get("exclude_terms", [])):
             return None
         title_ok = any(term.casefold() in job.title.casefold() for term in preferences["title_terms"])
@@ -56,8 +56,17 @@ class JobRelevanceAI:
         ai_probability = self.probability(text[:50_000])
         sponsorship_positive = any(term in text for term in preferences.get("sponsorship_positive", []))
         sponsorship_negative = any(term in text for term in preferences.get("sponsorship_negative", []))
-        sponsorship = "confirmed" if sponsorship_positive and not sponsorship_negative else "not_confirmed"
+        if sponsorship_negative:
+            sponsorship = "unavailable"
+        elif sponsorship_positive:
+            sponsorship = "confirmed"
+        else:
+            sponsorship = "not_confirmed"
         if preferences.get("require_sponsorship", False) and sponsorship != "confirmed":
+            return None
+        full_time_terms = ("full-time", "full time", "fulltime", "permanent")
+        full_time = any(term in text for term in full_time_terms)
+        if preferences.get("require_full_time", False) and not full_time:
             return None
         if not title_ok or ai_probability < float(preferences.get("minimum_ai_probability", 0.55)):
             return None
@@ -66,5 +75,14 @@ class JobRelevanceAI:
         if skills:
             reasons.append("Skills: " + ", ".join(skills[:7]))
         reasons.append(f"Sponsorship: {sponsorship.replace('_', ' ')}")
+        reasons.append(f"Employment: {'full time' if full_time else 'not confirmed'}")
+        warning_terms = [
+            term for term in (
+                "u.s. citizenship required", "us citizenship required",
+                "must be a u.s. citizen", "must be a us citizen",
+                "security clearance required", "polygraph",
+            ) if term in text
+        ]
+        if warning_terms:
+            reasons.append("Eligibility warning: " + ", ".join(warning_terms))
         return Match(job, round(score, 1), ai_probability, sponsorship, tuple(reasons))
-
