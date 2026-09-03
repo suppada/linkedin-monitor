@@ -4,6 +4,7 @@ import html
 import smtplib
 import ssl
 from email.message import EmailMessage
+from email.utils import formataddr
 
 from .models import Match
 
@@ -74,7 +75,7 @@ def send_gmail(sender: str, app_password: str, recipient: str, matches: list[Mat
     message = EmailMessage()
     count = len(matches)
     message["Subject"] = f"New DevOps job alert: {count} {'match' if count == 1 else 'matches'}"
-    message["From"] = sender
+    message["From"] = formataddr(("New Job Alerts", sender))
     message["To"] = recipient
     message.set_content("New matching DevOps jobs were found. View this email in HTML format.")
     message.add_alternative(build_email_html(matches), subtype="html")
