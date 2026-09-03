@@ -36,7 +36,18 @@
       "release engineer",
       "build engineer",
       "production engineer",
-      "mlops"
+      "mlops",
+      "research engineer",
+      "research scientist",
+      "applied scientist",
+      "cloud security researcher",
+      "cybersecurity researcher",
+      "security researcher",
+      "secure systems researcher",
+      "cloud systems researcher",
+      "devsecops researcher",
+      "software supply chain security",
+      "ai for devops"
     ],
     "skills": [
       "aws",
@@ -50,7 +61,21 @@
       "devsecops",
       "appdynamics",
       "observability",
-      "slsa"
+      "slsa",
+      "cloud security",
+      "cybersecurity",
+      "policy as code",
+      "opa",
+      "rego",
+      "fedramp",
+      "fisma",
+      "software supply chain",
+      "confidential computing",
+      "homomorphic encryption",
+      "artificial intelligence",
+      "machine learning",
+      "research",
+      "publication"
     ],
     "location_terms": [
       "united states",
