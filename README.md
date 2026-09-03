@@ -39,12 +39,11 @@ itself for United States and Full-time before enabling email delivery; the agent
 then extracts LinkedIn job links, applies its classifier, deduplicates them, and
 combines them with the other sources.
 
-The default configuration monitors official careers domains for NVIDIA, Google,
-Apple, Tesla, Microsoft, Amazon, Meta, Netflix, Salesforce, and Oracle. Results
-are discovered through a domain-restricted RSS search and accepted only when
-the destination hostname is the configured employer domain. Every alert links
-to the employer's careers site. Search-engine indexing can introduce delay, so
-this is polling rather than a real-time employer webhook.
+The default configuration connects directly to the public careers systems for
+NVIDIA, Google, Apple, Tesla, and Amazon. It searches United States DevOps,
+platform, SRE, cloud-infrastructure, and Kubernetes roles and returns only
+official employer application links. Each adapter is independently isolated so
+one unavailable employer site is reported without stopping the other searches.
 
 ## 1. Create your GitHub repository
 

@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlparse
@@ -32,6 +33,42 @@ def fetch_text(url: str) -> str:
             return response.read().decode("utf-8", errors="replace")
     except (HTTPError, URLError, TimeoutError, ValueError) as exc:
         raise RuntimeError(f"Company careers request failed: {url}: {exc}") from exc
+
+
+def post_json(url: str, payload: dict) -> Any:
+    request = Request(
+        url,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Accept": "application/json", "Content-Type": "application/json", "User-Agent": "DevOpsJobAgent/1.6"},
+    )
+    try:
+        with urlopen(request, timeout=45) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except (HTTPError, URLError, TimeoutError, ValueError) as exc:
+        raise RuntimeError(f"Company careers request failed: {url}: {exc}") from exc
+
+
+class AnchorParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.links: list[tuple[dict[str, str], str]] = []
+        self._attrs: dict[str, str] | None = None
+        self._text: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.casefold() == "a":
+            self._attrs = {key: value or "" for key, value in attrs}
+            self._text = []
+
+    def handle_data(self, data: str) -> None:
+        if self._attrs is not None:
+            self._text.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.casefold() == "a" and self._attrs is not None:
+            self.links.append((self._attrs, " ".join(self._text)))
+            self._attrs = None
+            self._text = []
 
 
 def clean(value: str | None) -> str:
@@ -222,6 +259,133 @@ def official_company(
     return jobs
 
 
+SEARCH_TERMS = ("devops", "platform engineer", "site reliability", "cloud infrastructure", "kubernetes")
+
+
+def nvidia_careers() -> list[Job]:
+    endpoint = "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/NVIDIAExternalCareerSite/jobs"
+    jobs: dict[str, Job] = {}
+    for term in SEARCH_TERMS:
+        for offset in range(0, 100, 20):
+            payload = post_json(endpoint, {"appliedFacets": {}, "limit": 20, "offset": offset, "searchText": term})
+            postings = payload.get("jobPostings", [])
+            for item in postings:
+                path = str(item.get("externalPath", ""))
+                if "/job/US-" not in path:
+                    continue
+                external_id = clean(" ".join(item.get("bulletFields") or [])) or path
+                jobs[external_id] = Job(
+                    source="company:nvidia", external_id=external_id, company="NVIDIA",
+                    title=clean(item.get("title")),
+                    location="United States — " + clean(item.get("locationsText")),
+                    description=clean(item.get("title")),
+                    url="https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite" + path,
+                    published_at=clean(item.get("postedOn")), employment_type="Full-time",
+                )
+            if len(postings) < 20 or offset + 20 >= int(payload.get("total", 0)):
+                break
+    return list(jobs.values())
+
+
+def apple_careers() -> list[Job]:
+    jobs: dict[str, Job] = {}
+    for term in SEARCH_TERMS:
+        url = "https://jobs.apple.com/en-us/search?" + urlencode({
+            "search": term, "location": "united-states-USA", "sort": "newest"
+        })
+        parser = AnchorParser()
+        parser.feed(fetch_text(url))
+        for attrs, text_value in parser.links:
+            path = html.unescape(attrs.get("href", ""))
+            if not path.startswith("/en-us/details/"):
+                continue
+            title = clean(text_value)
+            if not title or title.casefold().startswith("see full role"):
+                continue
+            external_id = path.split("/", 4)[3]
+            jobs[external_id] = Job(
+                source="company:apple", external_id=external_id, company="Apple",
+                title=title, location="United States", description=title,
+                url="https://jobs.apple.com" + path, employment_type="Full-time",
+            )
+    return list(jobs.values())
+
+
+def google_careers() -> list[Job]:
+    jobs: dict[str, Job] = {}
+    for term in SEARCH_TERMS:
+        url = "https://www.google.com/about/careers/applications/jobs/results/?" + urlencode({
+            "q": term, "location": "United States", "employment_type": "FULL_TIME"
+        })
+        parser = AnchorParser()
+        parser.feed(fetch_text(url))
+        for attrs, _ in parser.links:
+            path = html.unescape(attrs.get("href", ""))
+            label = clean(attrs.get("aria-label", ""))
+            if "jobs/results/" not in path or not label.startswith("Learn more about "):
+                continue
+            relative = path[path.index("jobs/results/"):].split("?", 1)[0]
+            external_id = relative.split("/", 2)[2].split("-", 1)[0]
+            title = label.removeprefix("Learn more about ")
+            jobs[external_id] = Job(
+                source="company:google", external_id=external_id, company="Google",
+                title=title, location="United States", description=title,
+                url="https://www.google.com/about/careers/applications/" + relative,
+                employment_type="Full-time",
+            )
+    return list(jobs.values())
+
+
+def tesla_careers() -> list[Job]:
+    payload = fetch_json("https://www.tesla.com/cua-api/apps/careers/state")
+    locations = payload.get("lookup", {}).get("locations", {})
+    types = payload.get("lookup", {}).get("types", {})
+    us_states = {"alabama", "alaska", "arizona", "arkansas", "california", "colorado", "connecticut", "delaware", "florida", "georgia", "hawaii", "idaho", "illinois", "indiana", "iowa", "kansas", "kentucky", "louisiana", "maine", "maryland", "massachusetts", "michigan", "minnesota", "mississippi", "missouri", "montana", "nebraska", "nevada", "new hampshire", "new jersey", "new mexico", "new york", "north carolina", "north dakota", "ohio", "oklahoma", "oregon", "pennsylvania", "rhode island", "south carolina", "south dakota", "tennessee", "texas", "utah", "vermont", "virginia", "washington", "west virginia", "wisconsin", "wyoming"}
+    jobs: list[Job] = []
+    for item in payload.get("listings", []):
+        title = clean(item.get("t"))
+        location = clean(locations.get(str(item.get("l")), ""))
+        job_type = clean(types.get(str(item.get("y")), ""))
+        if not any(term in title.casefold() for term in SEARCH_TERMS):
+            continue
+        if job_type.casefold() != "fulltime":
+            continue
+        if not any(state in location.casefold() for state in us_states):
+            continue
+        external_id = str(item["id"])
+        jobs.append(Job(
+            source="company:tesla", external_id=external_id, company="Tesla",
+            title=title, location=location, description=title,
+            url=f"https://www.tesla.com/careers/search/job/{external_id}",
+            employment_type="Full-time",
+        ))
+    return jobs
+
+
+def amazon_careers() -> list[Job]:
+    jobs: dict[str, Job] = {}
+    for term in SEARCH_TERMS:
+        url = "https://www.amazon.jobs/en/search.json?" + urlencode({
+            "base_query": term, "loc_query": "United States", "result_limit": 100
+        })
+        payload = fetch_json(url)
+        for item in payload.get("jobs", []):
+            if str(item.get("country_code", "")).upper() not in {"USA", "US"}:
+                continue
+            if item.get("is_intern"):
+                continue
+            external_id = str(item.get("id") or item.get("job_path", ""))
+            jobs[external_id] = Job(
+                source="company:amazon", external_id=external_id, company="Amazon",
+                title=clean(item.get("title")), location=clean(item.get("location")),
+                description=clean(f"{item.get('description_short', '')} {item.get('description', '')}"),
+                url="https://www.amazon.jobs" + str(item.get("job_path", "")),
+                published_at=clean(item.get("posted_date")),
+                employment_type=clean(item.get("job_schedule_type") or "Full-time"),
+            )
+    return list(jobs.values())
+
+
 def collect(config: dict) -> tuple[list[Job], list[str]]:
     jobs: list[Job] = []
     errors: list[str] = []
@@ -251,6 +415,16 @@ def collect(config: dict) -> tuple[list[Job], list[str]]:
                     str(source.get("path_prefix", "")),
                     str(source.get("query_terms", "devops platform engineer site reliability cloud infrastructure kubernetes")),
                 ))
+            elif source["type"] == "nvidia_careers":
+                jobs.extend(nvidia_careers())
+            elif source["type"] == "apple_careers":
+                jobs.extend(apple_careers())
+            elif source["type"] == "google_careers":
+                jobs.extend(google_careers())
+            elif source["type"] == "tesla_careers":
+                jobs.extend(tesla_careers())
+            elif source["type"] == "amazon_careers":
+                jobs.extend(amazon_careers())
             else:
                 errors.append(f"Unsupported source type: {source.get('type')}")
         except RuntimeError as exc:

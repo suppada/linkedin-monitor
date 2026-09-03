@@ -1,15 +1,10 @@
 {
   "sources": [
-    {"type":"official_company","company":"NVIDIA","domain":"nvidia.wd5.myworkdayjobs.com","path_prefix":"NVIDIAExternalCareerSite"},
-    {"type":"official_company","company":"Google","domain":"google.com","path_prefix":"/about/careers/applications/jobs/"},
-    {"type":"official_company","company":"Apple","domain":"jobs.apple.com","path_prefix":"/en-us/"},
-    {"type":"official_company","company":"Tesla","domain":"tesla.com","path_prefix":"/careers/"},
-    {"type":"official_company","company":"Microsoft","domain":"jobs.careers.microsoft.com","path_prefix":"/global/en/"},
-    {"type":"official_company","company":"Amazon","domain":"amazon.jobs","path_prefix":"/en/jobs/"},
-    {"type":"official_company","company":"Meta","domain":"metacareers.com","path_prefix":"/jobs/"},
-    {"type":"official_company","company":"Netflix","domain":"jobs.netflix.com","path_prefix":"/jobs/"},
-    {"type":"official_company","company":"Salesforce","domain":"careers.salesforce.com","path_prefix":"/en/jobs/"},
-    {"type":"official_company","company":"Oracle","domain":"careers.oracle.com","path_prefix":"/jobs/"}
+    {"type":"nvidia_careers"},
+    {"type":"google_careers"},
+    {"type":"apple_careers"},
+    {"type":"tesla_careers"},
+    {"type":"amazon_careers"}
   ],
   "notifications": {
     "max_jobs_per_email": 30
