@@ -25,9 +25,9 @@ jobs:
       - name: Restore seen-job database
         uses: actions/cache/restore@v4
         with:
-          path: data/linkedin-job-agent.db
-          key: linkedin-job-agent-state-${{ github.run_id }}
-          restore-keys: linkedin-job-agent-state-
+          path: data/linkedin-only-v2.db
+          key: linkedin-only-v2-state-${{ github.run_id }}
+          restore-keys: linkedin-only-v2-state-
 
       - name: Install agent
         run: python -m pip install .
@@ -37,12 +37,12 @@ jobs:
           GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           GMAIL_TO: ${{ secrets.GMAIL_TO }}
-        run: job-agent --config config.json --state data/linkedin-job-agent.db
+        run: job-agent --config config.json --state data/linkedin-only-v2.db
 
       - name: Save seen-job database
         if: always()
         uses: actions/cache/save@v4
         with:
-          path: data/linkedin-job-agent.db
-          key: linkedin-job-agent-state-${{ github.run_id }}
+          path: data/linkedin-only-v2.db
+          key: linkedin-only-v2-state-${{ github.run_id }}
 
