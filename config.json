@@ -29,7 +29,7 @@
     "sponsorship_negative": [
       "no sponsorship", "unable to sponsor", "will not sponsor"
     ],
-    "require_sponsorship": true,
+    "require_sponsorship": false,
     "require_full_time": true,
     "minimum_ai_probability": 0.35
   }
