@@ -12,6 +12,7 @@ from job_agent.models import Job, Match
 from job_agent.resume_matcher import ResumeMatcher
 from job_agent.sources import arbeitnow, jobicy, official_company, remotive
 from job_agent.state import State
+from job_agent.uscis_monitor import parse_status, status_fingerprint
 
 
 TRAINING = Path(__file__).parents[1] / "src" / "job_agent" / "data" / "training.json"
@@ -53,6 +54,19 @@ class JobAgentTests(unittest.TestCase):
             self.assertFalse(state.is_seen("job:1"))
             state.mark_seen(["job:1"])
             self.assertTrue(state.is_seen("job:1"))
+
+    def test_parses_uscis_status(self):
+        page = '''<html><h1>USCIS Is Currently Processing the Case</h1>
+        <p>As of August 13, 2026, USCIS is currently processing your Form I-140,
+        Immigrant Petition for Alien Worker. We do not currently need anything from you.</p></html>'''
+        status = parse_status(page)
+        self.assertEqual(status["status_date"], "August 13, 2026")
+        self.assertIn("Processing", status["title"])
+
+    def test_uscis_fingerprint_changes_with_status(self):
+        first = {"title": "Processing", "description": "Case processing", "status_date": ""}
+        second = {"title": "Approved", "description": "Case approved", "status_date": ""}
+        self.assertNotEqual(status_fingerprint(first), status_fingerprint(second))
 
     def test_builds_mobile_friendly_email_card(self):
         job = Job("test", "10", "Example", "Senior DevOps Engineer", "Charlotte, NC",
