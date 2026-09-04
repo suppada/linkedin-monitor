@@ -1,17 +1,7 @@
 name: USCIS I-140 Status Monitor
 
 on:
-  schedule:
-    # Run hourly, 11 minutes after the hour
-    - cron: "11 * * * *"
-
   workflow_dispatch:
-    inputs:
-      notify_initial:
-        description: "Send current status as a test email"
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: read
